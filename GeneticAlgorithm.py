@@ -32,75 +32,84 @@ def leastSquaresOne(expTree, data):
 #post: create two children trees from parents expTree1, expTree2
 #stop_prob = proability stop at a given subtree
 def crossParents(expTree1, expTree2, stop_prob):
-    child1 = ExpressionTree() #copy of expTree1
-    child2 = ExpressionTree() #copy of expTree2
+    child1 = expTree1.copy() #copy of expTree1, need to make copy method
+    child2 = expTree2.copy() #copy of expTree2
         
-    leftNode1 = False #whether to use left subtrree of node for split, for child1
-    leftNode2 = False #whether to use left subtree of node for split, for child2
+    isLeft1 = False #whether to use left subtrree of node for split, for child1
+    isLeft2 = False #whether to use left subtree of node for split, for child2
 
-    #####choose place to split expTree1##########
-    splitNode1 = child1.root #pointer for location in expression tree
-    found_subtree = False
-
-    #search for place to split expTree1
-    while !found_subtree:
-    
-        choice = random.random()
-        #go to left subtree, if choice < 0.5
-        if choice < 0.5:
-            leftNode1 = True
-        #go to right subtree, if choice >= .5
-        else:
-            leftNode1 = False
-
-        choose_node = random.random()
-        #stop searching, use appropriate subtree
-        if choose_node < stop_prob:
-            found_subtree = True
-        #keep looking for split node, according to appropriate subtree
-        else:
-            if leftNode1:
-                splitNode1 = splitNode1.left
-            else:
-                splitNode1 = splitNode1.right
-        
-    
-   ########choose place to split expTree2#########
-    splitNode2 = child2.root #pointer for location in expression tree
-    found_subtree = False
-
-    #search for place to split ExpTree2
-    while !found_subtree:
-
-        #node is terminal node
-    
-        choice = random.random()
-        #go to left subtree, if choice < 0.5
-        if choice < 0.5:
-            leftNode2 = True
-        #go to right subtree, if choice >= .5
-        else:
-            leftNode2 = False
-
-        choose_node = random.random()
-        #stop searching, use appropriate subtree
-        if choose_node < stop_prob:
-            found_subtree = True
-        #keep looking for split node, according to appropriate subtree
-        else:
-            if leftNode2:
-                splitNode2 = splitNode1.left
-            else:
-                splitNode2 = splitNode1.right
+    #choose place to split expTree1
+    splitNode1, isLeft1 = chooseSplitNode(child1, stop_prob)
+   #choose place to split expTree2
+    splitNode2, isLeft2 = chooseSplitNode(child2, stop_prob)
 
     
     #cross over, make babies
-    #splitting on left subtrees
-    if( leftNode1 and leftNode2)
+    #splitting on left subtrees for both, do I need copy of nodes????? mutable pointers?????
+    if isLeft1 and isLeft2:
+        temp1 = splitNode1.left
+        temp2 = splitNode2.left
+        splitNode1.left = temp2
+        splitNode2.left = temp1
+
+    #splitting on left subtree for 1st expression, right for the other
+     if isLeft1 and !isLeft2:
+        temp1 = splitNode1.left
+        temp2 = splitNode2.right
+        splitNode1.left = temp2
+        splitNode2.rigth = temp1
+
+    #splitting on right subtree for 1st expression, left for the other
+    if !isLeft1 and isLeft2:
+        temp1 = splitNode1.right
+        temp2 = splitNode2.left
+        splitNode1.right = temp2
+        splitNode2.left = temp1
+
+    #splitting on right subtrees for both, 
+    if !isLeft1 and !isLeft2:
+        temp1 = splitNode1.right
+        temp2 = splitNode2.right
+        splitNode1.right = temp2
+        splitNode2.right = temp1
     
-
-
-
     return child1, child2
+
+
+# choose subtree to swap for expTree, double check to make sure it is mutable
+def chooseSplitNode(expTree, stop_prob):
+    node = expTree.root
+    isLeft = False
+
+    found_subtree = False
+
+    #search for place to split expTree
+    while !found_subtree:
+
+        
+
+        
+        choice = random.random()
+        #go to left subtree, if choice < 0.5
+        if choice < 0.5:
+            isLeft = True
+        #go to right subtree, if choice >= .5
+        else:
+            isLeft = False
+
+        choose_node = random.random()
+        #stop searching, use appropriate subtree
+        if choose_node <= stop_prob:
+            found_subtree = True
+        #keep looking for split node, according to appropriate subtree
+        else:
+            if isLeft:
+                node = node.left
+            else:
+                node = node.right
+
+    return node, isLeft
+
+
 
 #4: Mutation for select trees
