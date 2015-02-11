@@ -1,41 +1,39 @@
 from ExpressionTree import ExpressionTree
+import random
+import GeneticAlgorithm
 
-list = ['x1', 'x3', '*', 'x2', '/']
+
+list = ['3', '7', '*', 'x', '+']
+l2 = [ 'a', 'b', '/', 'c', '-']
+
 
 print list
 
 tree = ExpressionTree(list)
+tree2 = ExpressionTree(l2)
+print '1st parent'
 tree.printTree()
-print tree.calculateThree(5, 0, 7) 
+print '2nd parent'
+tree2.printTree()
 
+child1, child2 = GeneticAlgorithm.crossParents(tree, tree2, 1)
 
-  #returns node, branch to split on (isLeft)
-    def chooseSplitNode(expTree, stop_prob):
+print '1st child'
+child1.printTree()
+print '2nd childe'
+child2.printTree()
 
-        node = expTree.root
-        isLeft = False
+## copy = tree.copyTree()
+## node, isLeft = GeneticAlgorithm.chooseSplitNode(tree, .3)
 
-        found_subtree = False
+## if isLeft:
+##     node.left.value = 'penis'
+##     print tree.printTreeHelper(node.left, '')
+## else:
+##     node.right.value = 'penis'
+##     print tree.printTreeHelper(node.right, '')
 
-        #search for place to split expTree
-        while !found_subtree:
-            choice = random.random()
-            #go to left subtree, if choice < 0.5
-            if choice < 0.5:
-                isLeft = True
-            #go to right subtree, if choice >= .5
-            else:
-                isLeft = False
-
-            choose_node = random.random()
-            #stop searching, use appropriate subtree
-            if choose_node <= stop_prob:
-                found_subtree = True
-            #keep looking for split node, according to appropriate subtree
-            else:
-                if isLeft:
-                    node = node.left
-                else:
-                    node = node.right
-
-        return node, isLeft
+## print 'changed tree'
+## tree.printTree()
+## print 'original tree'
+## copy.printTree()

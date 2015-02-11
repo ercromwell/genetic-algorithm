@@ -178,6 +178,28 @@ class ExpressionTree:
     
         return value
 
+    #returns copy of the tree
+    def copyTree(self):
+        copy_root = self.copyHelper(self.root)
+        copy_tree = ExpressionTree(['a'])
+        copy_tree.root  = copy_root
+
+        return copy_tree
+
+    def copyHelper(self, node):
+
+        #base case: reach empty node
+        if node is None:
+            return None
+
+        #recursive case
+        left_node = self.copyHelper(node.left)
+        right_node = self.copyHelper(node.right)
+
+        new_node = self.TreeNode(node.value, left_node, right_node)
+
+        return new_node
+
     #This class represents a node in our expression tree
     class TreeNode:
 
