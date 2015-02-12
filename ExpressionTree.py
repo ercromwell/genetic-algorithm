@@ -1,9 +1,11 @@
 #!/usr/local/bin/python
+import random
 
 class ExpressionTree:
     ##'Identifiers for operator, variable'
 
     BINARY_LIST = ["+", "-", "*", "/", "pow"] #represents add, minus, times, divide, and powers of 2
+    BINARY_LIST_NO_POW = ["+", "-", "*", "/"]
     #UNARY = ["-"]  # add back in later if necessary
     VARIABLES = ['x']
 
@@ -37,24 +39,9 @@ class ExpressionTree:
             else:
                 temp = self.TreeNode(item, None, None)
                 expStack.append(temp)
-
+                
         return expStack.pop()
 
-
-    #creates random expressionLists
-    def expressionListGenerator(size):
-        expList = []
-        x = 0
-        while (x < size):
-            r = random.choice(float in range (0, 100))
-            if (r < 45): #choose random operation 45% of time
-                expList.append(random.choice(BINARY_LIST))
-            elif (r < 55): #choose random variable 10% of time
-                expList.append(random.choice(VARIABLES))
-            else: #choose random constant 45% of time
-                expList.append(random.choice(int in range (-10, 10)))
-            x += 1
-        return expList
                 
     #prints expression tree in correct order
     def printTree(self):
@@ -118,14 +105,21 @@ class ExpressionTree:
 
                 #check if divide by 0, then do division
                 if rightValue == 0:
-                    value =  1    # hack, return extremely large number
-                    print "ERROR: trying to divide by 0"
+                    value =  100000000    # hack, return extremely large number
+                    #print "ERROR: trying to divide by 0"
                 else:
                     value = leftValue / rightValue 
 
             #operator is 'pow'
             if node.value == 'pow':
-                value = pow(leftValue, rightValue)
+                #make sure not rasing negative number to fractional value, e.g., square root of negative number
+                if (leftValue < 0) and (   (rightValue % 1) > 0 ) :
+                    value = 100000000 #poison tree
+                #make sure not raising 0 to negative power, i.e., divide by 0
+                elif leftValue == 0 and rightValue < 0:
+                    value = 100000000 #poison tree
+                else:
+                    value = pow(leftValue, rightValue)
 
         #node is constant or variable
         else:
@@ -173,7 +167,7 @@ class ExpressionTree:
 
                 #check if divide by 0, then do division
                 if rightValue == 0:
-                    value =  1   # hack, return extremely large number
+                    value =  100000000   # hack, return extremely large number
                     print "ERROR: trying to divide by 0"
                 else:
                     value = leftValue / rightValue 
@@ -216,6 +210,75 @@ class ExpressionTree:
         new_node = self.TreeNode(node.value, left_node, right_node)
 
         return new_node
+
+    def treeGenerator(self, max_depth):
+        op = random.choice(self.BINARY_LIST)
+        init_root = self.TreeNode(op, None, None)
+        have_power = (op == 'pow')
+        new_root = self.genHelper(init_root, 0, max_depth, have_power)
+
+        new_tree = ExpressionTree(['1'])
+        new_tree.root = new_root
+
+        return new_tree
+
+    #help build tree
+    #if current value is power, cannot have any more 'pow' in right side of tree
+    def genHelper(self, node, depth, max_depth, have_power):
+
+         #base case 1, reach terminal node or constant node
+        if node.value not in self.BINARY_LIST:
+            return node
+
+        #base case 2: reached max depth,  make sure not operator
+        if (depth >= max_depth):
+            if node.value in self.BINARY_LIST:
+                node.value = random.choice(self.VARIABLES)
+            return node
+
+        #recursive case
+
+        value1 = ''
+        value2 = ''
+        have_pow_right = False
+        have_pow_left = False
+
+        #for left child
+        r = random.choice( range(0, 100) )
+        if (r< 55): #choose random operation 45% of time
+            #make sure no power above, prevent exponential functions, parent node not pow
+            if have_power:
+                value1 += random.choice(self.BINARY_LIST_NO_POW)
+                have_pow_left = True
+            else:
+                value1 += random.choice(self.BINARY_LIST)
+        elif (r < 65): #choose random variable 10% of time
+            value1 += random.choice(self.VARIABLES)
+        else: #choose random constant 45% of time
+            value1 += str( random.choice( range (-10, 10) ) )
+
+        #for right child
+                #check to see if value is power, have right value only be positive integer
+        if node.value == 'pow':
+            value2+=str( random.choice( range (1, 10) ) )
+            have_power_right = True
+        #if power in previous parent, ensure right is constant, precent exponential
+        elif have_power:
+            value2+=str( random.choice( range (1, 10) ) )
+            have_power_right = True
+        else:
+            r = random.choice( range(0, 100) )
+            if (r < 55): #choose random operation 45% of time
+                value2 += random.choice(self.BINARY_LIST)
+            elif (r < 65): #choose random variable 10% of time
+                value2 += random.choice(self.VARIABLES)
+            else: #choose random constant 45% of time
+                value2 += str( random.choice( range (-10, 10) ) )
+
+        node.left = self.genHelper( self.TreeNode(value1, None, None), depth+1, max_depth, have_pow_left )
+        node.right = self.genHelper( self.TreeNode(value2, None, None), depth+1, max_depth, have_pow_right )
+
+        return node
 
     #This class represents a node in our expression tree
     class TreeNode:

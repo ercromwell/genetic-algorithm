@@ -4,39 +4,36 @@ import GeneticAlgorithm
 
 
 ##list = ['3', '7', '*', 'x', '+']
-## l2 = [ 'a', 'b', '/', 'c', '-']
+## l2 = [ 'x1', 'x2', '/', 'x3', '-']
+
+## l2 = ['1']
+## tree = ExpressionTree(l2)
+
+## new_tree = tree.treeGenerator(2)
+
+## new_tree.printTree()
+
+## filename = 'data.txt'
+
+filename = 'generator1_output.txt'
+num_gen = 5
+pop_size = 30
+num_vars = 1
+
+GeneticAlgorithm.run_symbolic_regression(filename, num_gen, pop_size, num_vars)
 
 
-## print list
+## data = GeneticAlgorithm.organizeData(filename)
 
-## tree = ExpressionTree(list)
-## tree2 = ExpressionTree(l2)
-## print '1st parent'
-## tree.printTree()
-## print '2nd parent'
-## tree2.printTree()
+## ## random.shuffle(data) #shuffle data
 
-filename = 'data.txt'
+## treeArray = GeneticAlgorithm.generateTrees(10)
 
-#filename = 'generator1_output.txt'
+## fitness = GeneticAlgorithm.calculateFitness(treeArray, data, 1)
 
-data = GeneticAlgorithm.organizeData(filename)
-
-random.shuffle(data) #shuffle data
-
-train_test_split = int(len(data) * 0.8)
-
-print train_test_split
-
-training_set = data[:train_test_split]
-test_set = data[train_test_split:]
-
-
-l2 = [ 'x1', 'x2', '/', 'x3', '-']
-tree = ExpressionTree(l2)
-
-train_fitness = GeneticAlgorithm.calculateFitness([tree], data, 3)
-
-print train_fitness
+## for i in range(0, len(fitness) ):
+##     print "Tree is: " 
+##     treeArray[i].printTree()
+##     print "    Fitness is: " + str(fitness[i])
 
 

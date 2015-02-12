@@ -18,18 +18,23 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
     test_set = data[train_test_split:]
     
     #generate random trees
-    parent_trees = []
+    parent_trees = generateTrees(pop_size, 2)
+    print len(parent_trees)
+    for tree in parent_trees:
+        tree.printTree()
     
     #calculate fitness of parents
     fitness = calculateFitness(parent_trees, training_set, num_vars)
+    print len(fitness)
 
     for gen in range(0, num_gen):
-        
+        print gen
         #check if found correct function, has 0 fitness
-        best = sorted( zip( fitness, parent_trees) )[:1]
-        if best[0] == 0:
+        best = sorted( zip( fitness, parent_trees) )
+        
+        if best[0][0] == 0:
             print 'Exact solution is: '
-            best[1].printTree()
+            best[0][1].printTree()
         
 
         #otherwise, keep searching
@@ -43,16 +48,16 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
         prob_intervals = []
         prob_intervals.append(norm_fitness[0])
         for i in range(1, len(norm_fitness)):
-            prob_intervals[i] = norm_fitness[i] + prob_intervals[i-1]
+            prob_intervals.append( norm_fitness[i] + prob_intervals[i-1] )
 
         children_trees = []
         # make children trees
-        for i in range(0, pop_size):
+        for i in range(0, pop_size-1):
         #select parents, ensure are not the same
-            int1 = random.randint(0, pop_size)
-            int2 = random.randint(0, pop_size)
+            int1 = random.randint(0, pop_size-1)
+            int2 = random.randint(0, pop_size-1)
             while(int1 == int2):
-                int2 = random.randint(0, pop_size)
+                int2 = random.randint(0, pop_size-1)
 
             parent_1 = parent_trees[int1]
             parent_2 = parent_trees[int2]
@@ -71,7 +76,7 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
 
         parent_trees = []
         fitness = []
-        for (score, tree) in children_fitness[:pop_size]:
+        for (score, tree) in top_children[:pop_size]:
             parent_tree.append(tree)
             fitness.append(score)
 
@@ -93,8 +98,9 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
     #choose best tree, based on test set
     final_fitness = calculateFitness(parent_trees, test_set, num_vars)
 
-    best_tree = sorted( zip(final_fitness, parent_trees) )[:1]
+    best_pair = sorted( zip(final_fitness, parent_trees) )[:1]
 
+    best_tree = best_pair[1]
     print 'The function is most likely: '
     best_tree[1].printTree()
     
@@ -120,12 +126,13 @@ def organizeData(filename):
     return data
 
 #1: Generate random expression Trees
-## def generateTrees(size):
-##     treeArray = []
-##     for x in range (0, 1000):
-##        lst = expressionListGenerator(size)
-##        treeArray.append(ExpressionTree(lst))
-##     return treeArray
+def generateTrees(pop_size, max_depth):
+    treeArray = []
+    dummyTree = ExpressionTree(['1'])
+    for x in range (0, pop_size):
+       tree = dummyTree.treeGenerator(max_depth)
+       treeArray.append(tree)
+    return treeArray
 
 #2: Calculate fitness function for each tree, lets assume we have already opened, loaded data, so we dont have to keep doing
 ## it over again. num_var = number of variables in the function
