@@ -4,9 +4,7 @@ import random
 # run genetic algorithm to solve for correct function of given data in 'filename'
 # 'num_gen' = number of generations, 'num_vars' = number of variables in the function
 # 'pop_size' = sze of the population
-def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
-    stop_prob = 0.8
-    init_depth = 3
+def run_symbolic_regression(filename, num_gen, pop_size, num_vars, stop_prob, init_depth):
     
     #import data from filename
     data = organizeData(filename)
@@ -153,7 +151,10 @@ def calculateFitness(treeArray, data, num_var):
             if num_var == 1:
                 x = data_points[0]
                 y = data_points[1]
-                error = abs(  tree.calculate(x) - y )
+                try:
+                    error = abs(  tree.calculate(x) - y )
+                except OverflowError, err:
+                        error = 10000
                 if error >1000:
                     fitness+= 1000000
                 else:
@@ -164,7 +165,10 @@ def calculateFitness(treeArray, data, num_var):
                 x3 = data_points[2]
                 y = data_points[3]
 
-                error = abs(  tree.calculateThree(x1, x2, x3) - y )
+                try:
+                    error = abs(  tree.calculateThree(x1, x2, x3) - y )
+                except OverflowError, err:
+                        error = 10000
                 if error >1000:
                     fitness+= 1000000
                 else:
@@ -282,11 +286,11 @@ def chooseSplitNode(expTree, stop_prob):
 
 #4: Mutation for select trees, needs editing for variable list
 def mutate(expTreeArray):
-    #mutate 1% of trees by picking 1 in 100
-    i = random.choice( range (0, 100))
+    #mutate 5% of trees by picking 1 in 100
+    i = random.choice( range (0, 20))
     x = 0
     while (x < len(expTreeArray) ):
-        if (x % 100 == i):
+        if (x % 20 == i):
 
             node, isLeft = chooseSplitNode(expTreeArray[x], 0.5)
             
@@ -295,6 +299,6 @@ def mutate(expTreeArray):
             elif (node.value in ExpressionTree.VARIABLES): #switch variable if it's a variable
                 node.value = random.choice(ExpressionTree.VARIABLES)
             else: #switch integer if it's an int
-                node.value = ''+ random.choice( range (-10,10))
+                node.value = ''+ random.choice(ExpressionTree.VARIABLES+ range (-10,10))
         x += 1
 

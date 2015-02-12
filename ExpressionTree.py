@@ -228,8 +228,7 @@ class ExpressionTree:
         op = random.choice(self.BINARY_LIST)
         init_root = self.TreeNode(op, None, None)
         have_power = (op == 'pow')
-        have_div = (op == '/')
-        new_root = self.genHelper(init_root, 0, max_depth, have_power, have_div)
+        new_root = self.genHelper(init_root, 0, max_depth, have_power)
 
         new_tree = ExpressionTree(['1'])
         new_tree.root = new_root
@@ -239,7 +238,7 @@ class ExpressionTree:
     #help build tree
     #if current value is power, cannot have any more 'pow' in right side of tree
     # prevent trees of form (a/x), same as x to negative one
-    def genHelper(self, node, depth, max_depth, have_power, have_div):
+    def genHelper(self, node, depth, max_depth, have_power):
 
          #base case 1, reach terminal node or constant node
         if node.value not in self.BINARY_LIST:
@@ -257,19 +256,18 @@ class ExpressionTree:
         value2 = ''
         have_pow_right = False
         have_pow_left = False
-        have_div_right = False
-        have_div_left = False
+
 
         #for left child
         r = random.choice( range(0, 100) )
-        if (r< 55): #choose random operation 45% of time
+        if (r< 45): #choose random operation 45% of time
             #make sure no power above, prevent exponential functions, parent node not pow
             if have_power:
                 value1 += random.choice(self.BINARY_LIST_NO_POW)
                 have_pow_left = True
             else:
                 value1 += random.choice(self.BINARY_LIST)
-        elif (r < 65): #choose random variable 10% of time
+        elif (r < 70): #choose random variable 10% of time
             value1 += random.choice(self.VARIABLES)
         else: #choose random constant 45% of time
             value1 += str( random.choice( range (-10, 10) ) )
@@ -280,29 +278,21 @@ class ExpressionTree:
         if node.value == 'pow':
             value2+=str( random.choice( range (1, 10) ) )
             have_power_right = True
-        elif node.value == '/':
-            value2+=str( random.choice( range (-10, 10) ) )
-            have_div_right = True
-
         #if power in previous parent, ensure right is constant, precent exponential
         elif have_power:
             value2+=str( random.choice( range (1, 10) ) )
             have_power_right = True
-        #if division in previous parent, cant have variable
-        elif have_div:
-            value2+=str( random.choice( range (-10, 10) ) )
-            have_div_right = True                    
         else:
             r = random.choice( range(0, 100) )
-            if (r < 55): #choose random operation 45% of time
+            if (r < 45): #choose random operation 45% of time
                 value2 += random.choice(self.BINARY_LIST)
-            elif (r < 65): #choose random variable 10% of time
+            elif (r < 70): #choose random variable 25% of time
                 value2 += random.choice(self.VARIABLES)
-            else: #choose random constant 45% of time
+            else: #choose random constant 30% of time
                 value2 += str( random.choice( range (-10, 10) ) )
 
-        node.left = self.genHelper( self.TreeNode(value1, None, None), depth+1, max_depth, have_pow_left, False )
-        node.right = self.genHelper( self.TreeNode(value2, None, None), depth+1, max_depth, have_pow_right, have_div_right )
+        node.left = self.genHelper( self.TreeNode(value1, None, None), depth+1, max_depth, have_pow_left )
+        node.right = self.genHelper( self.TreeNode(value2, None, None), depth+1, max_depth, have_pow_right )
 
         return node
 

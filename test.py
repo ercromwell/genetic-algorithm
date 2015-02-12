@@ -16,24 +16,14 @@ import GeneticAlgorithm
 ## filename = 'data.txt'
 
 filename = 'generator1_data.txt'
-num_gen = 2
+num_gen = 3
 pop_size = 500
 num_vars = 1
+stop_prob = 0.8 #for stopping to split a tree
+init_depth = 4 #max initial depth for random trees
 
-GeneticAlgorithm.run_symbolic_regression(filename, num_gen, pop_size, num_vars)
+GeneticAlgorithm.run_symbolic_regression(filename, num_gen, pop_size, num_vars, stop_prob, init_depth)
 
 
-## data = GeneticAlgorithm.organizeData(filename)
-
-## ## random.shuffle(data) #shuffle data
-
-## treeArray = GeneticAlgorithm.generateTrees(10)
-
-## fitness = GeneticAlgorithm.calculateFitness(treeArray, data, 1)
-
-## for i in range(0, len(fitness) ):
-##     print "Tree is: " 
-##     treeArray[i].printTree()
-##     print "    Fitness is: " + str(fitness[i])
 
 
