@@ -3,37 +3,40 @@ import random
 import GeneticAlgorithm
 
 
-list = ['3', '7', '*', 'x', '+']
-l2 = [ 'a', 'b', '/', 'c', '-']
+##list = ['3', '7', '*', 'x', '+']
+## l2 = [ 'a', 'b', '/', 'c', '-']
 
 
-print list
+## print list
 
-tree = ExpressionTree(list)
-tree2 = ExpressionTree(l2)
-print '1st parent'
-tree.printTree()
-print '2nd parent'
-tree2.printTree()
-
-child1, child2 = GeneticAlgorithm.crossParents(tree, tree2, 1)
-
-print '1st child'
-child1.printTree()
-print '2nd childe'
-child2.printTree()
-
-## copy = tree.copyTree()
-## node, isLeft = GeneticAlgorithm.chooseSplitNode(tree, .3)
-
-## if isLeft:
-##     node.left.value = 'penis'
-##     print tree.printTreeHelper(node.left, '')
-## else:
-##     node.right.value = 'penis'
-##     print tree.printTreeHelper(node.right, '')
-
-## print 'changed tree'
+## tree = ExpressionTree(list)
+## tree2 = ExpressionTree(l2)
+## print '1st parent'
 ## tree.printTree()
-## print 'original tree'
-## copy.printTree()
+## print '2nd parent'
+## tree2.printTree()
+
+filename = 'data.txt'
+
+#filename = 'generator1_output.txt'
+
+data = GeneticAlgorithm.organizeData(filename)
+
+random.shuffle(data) #shuffle data
+
+train_test_split = int(len(data) * 0.8)
+
+print train_test_split
+
+training_set = data[:train_test_split]
+test_set = data[train_test_split:]
+
+
+l2 = [ 'x1', 'x2', '/', 'x3', '-']
+tree = ExpressionTree(l2)
+
+train_fitness = GeneticAlgorithm.calculateFitness([tree], data, 3)
+
+print train_fitness
+
+

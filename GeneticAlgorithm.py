@@ -8,68 +8,97 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
 
     #import data from filename
     data = organizeData(filename)
+
+    #divide data into training/test set
+    random.shuffle(data) #shuffle data
+
+    train_test_split = int(len(data) * 0.8)
+
+    training_set = data[:train_test_split]
+    test_set = data[train_test_split:]
     
     #generate random trees
-    parent_trees = list of random expression trees
-    
-
+    parent_trees = []
     
     #calculate fitness of parents
-    fitness = calculateFitness(parent_trees, data, num_vars)
+    fitness = calculateFitness(parent_trees, training_set, num_vars)
 
+    for gen in range(0, num_gen):
+        
+        #check if found correct function, has 0 fitness
+        best = sorted( zip( fitness, parent_trees) )[:1]
+        if best[0] == 0:
+            print 'Exact solution is: '
+            best[1].printTree()
+        
 
-##########loop starts here########################
+        #otherwise, keep searching
+        max_fitness = [ 1/x for x in fitness]
+        sum_fit = sum(fitness)
 
-    #check if found correct function, has 0 fitness
-    if 
+        #normalize fitness scores
+        norm_fitness = [ x/sum_fit for x in max_fitness]
 
-    #otherwise, keep searching
-    max_fitness = [ 1/x for x in fitness]
-    sum_fit = sum(fitness)
+        #set up probability sections
+        prob_intervals = []
+        prob_intervals.append(norm_fitness[0])
+        for i in range(1, len(norm_fitness)):
+            prob_intervals[i] = norm_fitness[i] + prob_intervals[i-1]
 
-    #normalize fitness scores
-    norm_fitness = [ x/sum_fit for x in max_fitness]
-
-    #set up probability sections
-    prob_intervals = []
-    prob_intervals.append(norm_fitness[0])
-    for i in range(1, len(norm_fitness)):
-        prob_intervals[i] = norm_fitness[i] + prob_intervals[i-1]
-
-    children_trees = []
-    # make children trees
-    for i in range(0, pop_size):
-    #select parents, ensure are not the same
-        int1 = random.randint(0, pop_size)
-        int2 = random.randint(0, pop_size)
-        while(int1 == int2):
+        children_trees = []
+        # make children trees
+        for i in range(0, pop_size):
+        #select parents, ensure are not the same
+            int1 = random.randint(0, pop_size)
             int2 = random.randint(0, pop_size)
+            while(int1 == int2):
+                int2 = random.randint(0, pop_size)
 
-        parent_1 = parent_trees[int1]
-        parent_2 = parent_trees[int2]
+            parent_1 = parent_trees[int1]
+            parent_2 = parent_trees[int2]
 
-        child_1, child_2 = crossParents(parent_1, parent_2, 0.7)
-        
-        children_trees.append(child_1)
-        children_trees.append(child_2)
+            child_1, child_2 = crossParents(parent_1, parent_2, 0.7)
 
-    #OPTIONS: keep only children_trees, make the new OR mix with parents, keep top parents and childre
+            children_trees.append(child_1)
+            children_trees.append(child_2)
 
-    #OPTION 1: KEEP ONLY CHILDREN_TREES
-    children_fitness = calculateFitness(children_trees, data, num_vars)
+        #OPTIONS: keep only children_trees, make the new OR mix with parents, keep top parents and childre
 
-    top_children = sorted( zip(children_fitness, children_trees) )
+        children_fitness = calculateFitness(children_trees, training_set, num_vars)
+         
+        #OPTION 1: KEEP ONLY CHILDREN_TREE
+        top_children = sorted( zip(children_fitness, children_trees) )
 
-    parent_tree = []
-    fitness = []
-    for (score, tree) in children_fitness[:pop_size]:
-        parent_tree.append(tree)
-        fitness.append(score)
+        parent_trees = []
+        fitness = []
+        for (score, tree) in children_fitness[:pop_size]:
+            parent_tree.append(tree)
+            fitness.append(score)
 
-        
+        ## #OPTION 2: MIX PARENTS AND CHILDREN
+        ## labeled_both = []
+
+        ## for n in range(0, pop_size):
+        ##     labeled_both.append( (children_fitness[n], children_trees[n]) )
+        ##     labeled_both.append( (fitness[n],  parent_trees[n]) )
+
+        ## parent_trees = []
+        ## fitness = []
+
+        ## for (f, tree) in sorted(labeled_both)[:pop_size]:
+        ##     parent_trees.append(tree)
+        ##     fitness.append(f)
+    
+
+    #choose best tree, based on test set
+    final_fitness = calculateFitness(parent_trees, test_set, num_vars)
+
+    best_tree = sorted( zip(final_fitness, parent_trees) )[:1]
+
+    print 'The function is most likely: '
+    best_tree[1].printTree()
     
     
-
 
 
 #0: get data from file 'fiilename". Can be used for 3 variable or one variable functions

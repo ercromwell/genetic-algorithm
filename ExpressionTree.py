@@ -42,10 +42,10 @@ class ExpressionTree:
 
 
     #creates random expressionLists
-    def expressionListGenerator(size)
+    def expressionListGenerator(size):
         expList = []
         x = 0
-        while (x < size)
+        while (x < size):
             r = random.choice(float in range (0, 100))
             if (r < 45): #choose random operation 45% of time
                 expList.append(random.choice(BINARY_LIST))
