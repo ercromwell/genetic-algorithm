@@ -5,6 +5,8 @@ class ExpressionTree:
 
     BINARY_LIST = ["+", "-", "*", "/", "pow"] #represents add, minus, times, divide, and powers of 2
     #UNARY = ["-"]  # add back in later if necessary
+    VARIABLES = ['x']
+
 
     # constructs a default tree
     def __init__(self):
@@ -37,7 +39,22 @@ class ExpressionTree:
                 expStack.append(temp)
 
         return expStack.pop()
-                
+
+
+    #creates random expressionLists
+    def expressionListGenerator(size)
+        expList = []
+        x = 0
+        while (x < size)
+            r = random.choice(float in range (0, 100))
+            if (r < 45): #choose random operation 45% of time
+                expList.append(random.choice(BINARY_LIST))
+            elif (r < 55): #choose random variable 10% of time
+                expList.append(random.choice(VARIABLES))
+            else: #choose random constant 45% of time
+                expList.append(random.choice(int in range (-10, 10)))
+            x += 1
+        return expList
                 
     #prints expression tree in correct order
     def printTree(self):
@@ -177,13 +194,13 @@ class ExpressionTree:
                 value = float(node.value)*1.0
     
         return value
-
+ 
     #returns copy of the tree
     def copyTree(self):
         copy_root = self.copyHelper(self.root)
         copy_tree = ExpressionTree(['a'])
         copy_tree.root  = copy_root
-
+ 
         return copy_tree
 
     def copyHelper(self, node):

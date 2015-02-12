@@ -1,27 +1,124 @@
 from ExpressionTree import ExpressionTree
 import random
 
-#1: Generate random expression Trees
-def generateTrees(size):
-    treeArray = []
-    for x in range (0, 1000):
-       lst = expressionListGenerator(size)
-       treeArray.append(ExpressionTree(lst))
-    return treeArray
+# run genetic algorithm to solve for correct function of given data in 'filename'
+# 'num_gen' = number of generations, 'num_vars' = number of variables in the function
+# 'pop_size' = sze of the population
+def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
 
-#2: Calculate fitness function for each tree
-def calculateFitness(treeArray):
+    #import data from filename
+    data = organizeData(filename)
+    
+    #generate random trees
+    parent_trees = list of random expression trees
+    
+
+    
+    #calculate fitness of parents
+    fitness = calculateFitness(parent_trees, data, num_vars)
+
+
+##########loop starts here########################
+
+    #check if found correct function, has 0 fitness
+    if 
+
+    #otherwise, keep searching
+    max_fitness = [ 1/x for x in fitness]
+    sum_fit = sum(fitness)
+
+    #normalize fitness scores
+    norm_fitness = [ x/sum_fit for x in max_fitness]
+
+    #set up probability sections
+    prob_intervals = []
+    prob_intervals.append(norm_fitness[0])
+    for i in range(1, len(norm_fitness)):
+        prob_intervals[i] = norm_fitness[i] + prob_intervals[i-1]
+
+    children_trees = []
+    # make children trees
+    for i in range(0, pop_size):
+    #select parents, ensure are not the same
+        int1 = random.randint(0, pop_size)
+        int2 = random.randint(0, pop_size)
+        while(int1 == int2):
+            int2 = random.randint(0, pop_size)
+
+        parent_1 = parent_trees[int1]
+        parent_2 = parent_trees[int2]
+
+        child_1, child_2 = crossParents(parent_1, parent_2, 0.7)
+        
+        children_trees.append(child_1)
+        children_trees.append(child_2)
+
+    #OPTIONS: keep only children_trees, make the new OR mix with parents, keep top parents and childre
+
+    #OPTION 1: KEEP ONLY CHILDREN_TREES
+    children_fitness = calculateFitness(children_trees, data, num_vars)
+
+    top_children = sorted( zip(children_fitness, children_trees) )
+
+    parent_tree = []
+    fitness = []
+    for (score, tree) in children_fitness[:pop_size]:
+        parent_tree.append(tree)
+        fitness.append(score)
+
+        
+    
+    
+
+
+
+#0: get data from file 'fiilename". Can be used for 3 variable or one variable functions
+def organizeData(filename):
+    data = []
+    data_file = open(filename)
+
+    for line in data_file:
+        data_values = line.split()
+
+        numbers = [] # list that holds input and outputs
+        for v in data_values:
+            numbers.append(float(v))
+
+        data.append(numbers)
+
+    data_file.close()
+    
+    return data
+
+#1: Generate random expression Trees
+## def generateTrees(size):
+##     treeArray = []
+##     for x in range (0, 1000):
+##        lst = expressionListGenerator(size)
+##        treeArray.append(ExpressionTree(lst))
+##     return treeArray
+
+#2: Calculate fitness function for each tree, lets assume we have already opened, loaded data, so we dont have to keep doing
+## it over again. num_var = number of variables in the function
+def calculateFitness(treeArray, data, num_var):
     fitnessArray = []
-    data = open(SOMETHING.txt)
     for tree in treeArray:
         fitness = 0
-        for line in data:
-            if lineNumber % 5 != 0: #skip over every 5th line to use at the end
-                for entry in txtFile
-                x = scanner.next()
-                fitness += (tree(x) - scanner.next())^2
+
+        for data_points in data:
+            if num_var == 1:
+                x = data_points[0]
+                y = data_points[1]
+                fitness+= pow( tree.calculate(x) - y, 2)
+            if num_var == 3:
+                x1 = data_points[0]
+                x2 = data_points[1]
+                x3 = data_points[2]
+                y = data_points[3]
+                fitness+= pow( tree.calculateThree(x1, x2, x3) - y, 2) 
+
         fitnessArray.append(fitness)
-        close(SOMETHING.txt)
+        
     return fitnessArray
 
 #Calculate error of function on f(x)= y, where x is input and y is actual value, for one variable
@@ -130,22 +227,21 @@ def chooseSplitNode(expTree, stop_prob):
 
     return node, isLeft
 
-
-
-#4: Mutation for select trees
-def mutate(expTree):
+#4: Mutation for select trees, needs editing for variable list
+def mutate(expTreeArray):
     #mutate 1% of trees by picking 1 in 100
     i = random.choice(int in range (0, 100))
     x = 0
-    while (x < expTree.length)
-        if (x = i % 100):
+    while (x < expTree.length):
+        if (x % 100 == i):
 
-            #choose random node in(expTree[x]) !!!!!!!!!!
+            node, isLeft = chooseSplitNode(expTreeArray[x], 0.5)
             
-            if (node.value is in BINARY_LIST) #switch operation if it's an operation
+            if (node.value in BINARY_LIST): #switch operation if it's an operation
                 node.value = random.choice(BINARY_LIST)
-            elif (node.value is int) #switch integer if it's an int
-                node.value = random.choice(int in range (-10,10))
-            elif (node.value is in VARIABLE_LIST): #switch variable if it's a variable
+            elif (node.value in VARIABLE_LIST): #switch variable if it's a variable
                 node.value = random.choice(VARIABLE_LIST)
+            else: #switch integer if it's an int
+                node.value = ''+ random.choice(int in range (-10,10))
         x += 1
+
