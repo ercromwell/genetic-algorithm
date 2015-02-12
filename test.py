@@ -15,9 +15,9 @@ import GeneticAlgorithm
 
 ## filename = 'data.txt'
 
-filename = 'generator1_output.txt'
-num_gen = 5
-pop_size = 30
+filename = 'generator1_data.txt'
+num_gen = 2
+pop_size = 500
 num_vars = 1
 
 GeneticAlgorithm.run_symbolic_regression(filename, num_gen, pop_size, num_vars)

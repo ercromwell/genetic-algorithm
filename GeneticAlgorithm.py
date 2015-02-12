@@ -5,7 +5,9 @@ import random
 # 'num_gen' = number of generations, 'num_vars' = number of variables in the function
 # 'pop_size' = sze of the population
 def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
-
+    stop_prob = 0.8
+    init_depth = 3
+    
     #import data from filename
     data = organizeData(filename)
 
@@ -18,10 +20,8 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
     test_set = data[train_test_split:]
     
     #generate random trees
-    parent_trees = generateTrees(pop_size, 2)
-    print len(parent_trees)
-    for tree in parent_trees:
-        tree.printTree()
+    parent_trees = generateTrees(pop_size, init_depth)
+
     
     #calculate fitness of parents
     fitness = calculateFitness(parent_trees, training_set, num_vars)
@@ -29,6 +29,8 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
 
     for gen in range(0, num_gen):
         print gen
+        print "num of trees: " + str(len(parent_trees))
+
         #check if found correct function, has 0 fitness
         best = sorted( zip( fitness, parent_trees) )
         
@@ -52,7 +54,7 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
 
         children_trees = []
         # make children trees
-        for i in range(0, pop_size-1):
+        for i in range(0, pop_size):
         #select parents, ensure are not the same
             int1 = random.randint(0, pop_size-1)
             int2 = random.randint(0, pop_size-1)
@@ -62,22 +64,25 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
             parent_1 = parent_trees[int1]
             parent_2 = parent_trees[int2]
 
-            child_1, child_2 = crossParents(parent_1, parent_2, 0.7)
+            child_1, child_2 = crossParents(parent_1, parent_2, stop_prob)
 
             children_trees.append(child_1)
             children_trees.append(child_2)
 
+        #mutate some childre
+        mutate(children_trees)
+            
         #OPTIONS: keep only children_trees, make the new OR mix with parents, keep top parents and childre
 
         children_fitness = calculateFitness(children_trees, training_set, num_vars)
          
-        #OPTION 1: KEEP ONLY CHILDREN_TREE
+       # OPTION 1: KEEP ONLY CHILDREN_TREE
         top_children = sorted( zip(children_fitness, children_trees) )
 
         parent_trees = []
         fitness = []
         for (score, tree) in top_children[:pop_size]:
-            parent_tree.append(tree)
+            parent_trees.append(tree)
             fitness.append(score)
 
         ## #OPTION 2: MIX PARENTS AND CHILDREN
@@ -93,16 +98,19 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars):
         ## for (f, tree) in sorted(labeled_both)[:pop_size]:
         ##     parent_trees.append(tree)
         ##     fitness.append(f)
+
     
 
     #choose best tree, based on test set
     final_fitness = calculateFitness(parent_trees, test_set, num_vars)
 
-    best_pair = sorted( zip(final_fitness, parent_trees) )[:1]
+    sorted_trees = sorted( zip(final_fitness, parent_trees) )
+    best_pair = sorted_trees[0]
+    print best_pair[0]
 
     best_tree = best_pair[1]
     print 'The function is most likely: '
-    best_tree[1].printTree()
+    best_tree.printTree()
     
     
 
@@ -145,13 +153,22 @@ def calculateFitness(treeArray, data, num_var):
             if num_var == 1:
                 x = data_points[0]
                 y = data_points[1]
-                fitness+= pow( tree.calculate(x) - y, 2)
+                error = abs(  tree.calculate(x) - y )
+                if error >1000:
+                    fitness+= 1000000
+                else:
+                    fitness+= pow( error, 2)
             if num_var == 3:
                 x1 = data_points[0]
                 x2 = data_points[1]
                 x3 = data_points[2]
                 y = data_points[3]
-                fitness+= pow( tree.calculateThree(x1, x2, x3) - y, 2) 
+
+                error = abs(  tree.calculateThree(x1, x2, x3) - y )
+                if error >1000:
+                    fitness+= 1000000
+                else:
+                    fitness+= pow( error, 2)
 
         fitnessArray.append(fitness)
         
@@ -266,18 +283,18 @@ def chooseSplitNode(expTree, stop_prob):
 #4: Mutation for select trees, needs editing for variable list
 def mutate(expTreeArray):
     #mutate 1% of trees by picking 1 in 100
-    i = random.choice(int in range (0, 100))
+    i = random.choice( range (0, 100))
     x = 0
-    while (x < expTree.length):
+    while (x < len(expTreeArray) ):
         if (x % 100 == i):
 
             node, isLeft = chooseSplitNode(expTreeArray[x], 0.5)
             
-            if (node.value in BINARY_LIST): #switch operation if it's an operation
-                node.value = random.choice(BINARY_LIST)
-            elif (node.value in VARIABLE_LIST): #switch variable if it's a variable
-                node.value = random.choice(VARIABLE_LIST)
+            if (node.value in ExpressionTree.BINARY_LIST): #switch operation if it's an operation
+                node.value = random.choice(ExpressionTree.BINARY_LIST)
+            elif (node.value in ExpressionTree.VARIABLES): #switch variable if it's a variable
+                node.value = random.choice(ExpressionTree.VARIABLES)
             else: #switch integer if it's an int
-                node.value = ''+ random.choice(int in range (-10,10))
+                node.value = ''+ random.choice( range (-10,10))
         x += 1
 
