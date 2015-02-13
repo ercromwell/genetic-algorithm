@@ -1,5 +1,6 @@
 from ExpressionTree import ExpressionTree
 import random
+import math
 
 # run genetic algorithm to solve for correct function of given data in 'filename'
 # 'num_gen' = number of generations, 'num_vars' = number of variables in the function
@@ -26,13 +27,12 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars, stop_prob, in
 
     for gen in range(0, num_gen):
         print gen
-        print "num of trees: " + str(len(parent_trees))
 
         #check if found correct function, has 0 fitness
         best = sorted( zip( fitness, parent_trees) )
         
-        if best[0][0] == 0:
-            print 'Exact solution is: '
+        if best[0][0] < 0.01:
+            print 'Almost Exact solution is: '
             best[0][1].printTree()
 
 
@@ -67,13 +67,20 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars, stop_prob, in
                     break
             #find correct parent2 based on random number, ensure not same as parent1
             int2 = int1
-            while( int1 == int2 ):
+            punt = 0
+            while( int1 == int2 and punt <500):
                 num2 = random.random()
                 for k in range(0, pop_size):
                     if num2 <= prob_intervals[k]:
                         int2 = k
                         break
+                punt = punt + 1
 
+            #'punt' if unable to find different parent after 50 tries
+            if punt >=500:
+                while( int1 == int2):
+                    int2 = random.randint(0, pop_size-1)
+            
             parent_1 = parent_trees[int1]
             parent_2 = parent_trees[int2]
 
@@ -89,28 +96,30 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars, stop_prob, in
 
         children_fitness = calculateFitness(children_trees, training_set, num_vars)
          
-       # OPTION 1: KEEP ONLY CHILDREN_TREE
-        top_children = sorted( zip(children_fitness, children_trees) )
+       ## # OPTION 1: KEEP ONLY CHILDREN_TREE
+       ##  top_children = sorted( zip(children_fitness, children_trees) )
+
+       ##  parent_trees = []
+       ##  fitness = []
+       ##  for (score, tree) in top_children[:pop_size]:
+       ##      parent_trees.append(tree)
+       ##      fitness.append(score)
+
+        #OPTION 2: MIX PARENTS AND CHILDREN
+        labeled_both = []
+
+        for n in range(0, pop_size):
+            labeled_both.append( (children_fitness[n], children_trees[n]) )
+            labeled_both.append( (fitness[n],  parent_trees[n]) )
 
         parent_trees = []
         fitness = []
-        for (score, tree) in top_children[:pop_size]:
+
+        for (f, tree) in sorted(labeled_both)[:pop_size]:
             parent_trees.append(tree)
-            fitness.append(score)
-
-        ## #OPTION 2: MIX PARENTS AND CHILDREN
-        ## labeled_both = []
-
-        ## for n in range(0, pop_size):
-        ##     labeled_both.append( (children_fitness[n], children_trees[n]) )
-        ##     labeled_both.append( (fitness[n],  parent_trees[n]) )
-
-        ## parent_trees = []
-        ## fitness = []
-
-        ## for (f, tree) in sorted(labeled_both)[:pop_size]:
-        ##     parent_trees.append(tree)
-        ##     fitness.append(f)
+            fitness.append(f)
+        
+        #OPTION 3: KEEP TOP TWO OF PARENT AND CHILD
 
     
 
@@ -171,7 +180,7 @@ def calculateFitness(treeArray, data, num_var):
                 except OverflowError, err:
                         error = 10000
                 if error >1000:
-                    fitness+= 1000000
+                    fitness+= 100000000
                 else:
                     fitness+= pow( error, 2)
             if num_var == 3:
@@ -185,12 +194,13 @@ def calculateFitness(treeArray, data, num_var):
                 except OverflowError, err:
                         error = 10000
                 if error >1000:
-                    fitness+= 1000000
+                    fitness+= 100000000
                 else:
                     fitness+= pow( error, 2)
 
-        fitnessArray.append(fitness)
-        
+        fitnessArray.append(math.log(fitness+1) )
+        #fitnessArray.append(fitness )
+
     return fitnessArray
 
 #Calculate error of function on f(x)= y, where x is input and y is actual value, for one variable

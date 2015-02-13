@@ -262,41 +262,90 @@ class ExpressionTree:
 
         #for left child
         r = random.choice( range(0, 100) )
-        if (r< 45): #choose random operation 45% of time
+        if (r <=45): #choose random operation 45% of time
             #make sure no power above, prevent exponential functions, parent node not pow
             if have_power:
                 value1 += random.choice(self.BINARY_LIST_NO_POW)
                 have_pow_left = True
             else:
                 value1 += random.choice(self.BINARY_LIST)
-        elif (r < 70): #choose random variable 10% of time
+        elif (r <= 75): #choose random variable 10% of time
             value1 += random.choice(self.VARIABLES)
         else: #choose random constant 45% of time
-            value1 += str( random.choice( range (-10, 10) ) )
+            value1 += str( random.choice( range (-20, 20) ) )
 
         #for right child
                 #check to see if value is power, have right value only be positive integer
                 #or if value is division
         if node.value == 'pow':
-            value2+=str( random.choice( range (1, 10) ) )
+            value2+=str( random.choice( range (1, 20) ) )
             have_power_right = True
         #if power in previous parent, ensure right is constant, precent exponential
         elif have_power:
-            value2+=str( random.choice( range (1, 10) ) )
+            value2+=str( random.choice( range (1, 20) ) )
             have_power_right = True
         else:
             r = random.choice( range(0, 100) )
-            if (r < 45): #choose random operation 45% of time
+            if (r <= 45): #choose random operation 45% of time
                 value2 += random.choice(self.BINARY_LIST)
-            elif (r < 70): #choose random variable 25% of time
+            elif (r <= 75): #choose random variable 25% of time
                 value2 += random.choice(self.VARIABLES)
             else: #choose random constant 30% of time
-                value2 += str( random.choice( range (-10, 10) ) )
+                value2 += str( random.choice( range (-20, 20) ) )
 
         node.left = self.genHelper( self.TreeNode(value1, None, None), depth+1, max_depth, have_pow_left )
         node.right = self.genHelper( self.TreeNode(value2, None, None), depth+1, max_depth, have_pow_right )
 
         return node
+
+    #determine if tree is "valid tree", i.e. no exponent powers, or negative powers
+    #will include anything else that seems necessary, division maybe???
+    def checkValidity(self):
+        self.validTree = self.validityHelper(self.root )
+
+    def validityHelper(self, node, power_parent):
+
+        #base case: If reach terminal node OR power situation
+        if node.value not in self.BINARY_LIST:
+            return True
+
+        #ensure node is integer value if parent node is 'pow' and this node is parent.right
+        if power_parent:
+            return (node.value not in self.BINARY_LIST) and (node.value not in self.VARIABLES) 
+
+        #recursive case: not terminal node
+
+        #left subtree is valid
+        validLeft = self.validityHelper(node.left, False)
+
+        #right subtree is valid
+        #if current node is 'pow', ensure right subtree is an integer constant
+        if node.value == 'pow':
+            validRight = self.validityHelper(node.right, True)
+        else:
+            validRight = self.validityHelper(node.right, False)
+
+        return validLeft and ValidRight
+
+    #return depth of tree
+    def treeDepth(self):
+        return self.depthHelper(self.root, 0)
+
+    def depthHelper(node, current_depth):
+
+        #base case: terminal node
+        if node.left is None and node.right is None:
+            return current_depth
+
+
+        #recursive case
+        #depth of left subtree
+        leftDepth = self.depthHelper(node.left, current_depth+1)
+        
+        #depth of right subtree
+        rightDepth = self.depthHelper(node.right, current_depth+1)
+
+        return max(leftDepth, rightDepth)
 
     #This class represents a node in our expression tree
     class TreeNode:
