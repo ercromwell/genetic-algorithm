@@ -16,7 +16,7 @@ import GeneticAlgorithm
 ## filename = 'data.txt'
 
 filename = 'generator1_data.txt'
-num_gen = 3
+num_gen = 10
 pop_size = 500
 num_vars = 1
 stop_prob = 0.8 #for stopping to split a tree

@@ -14,12 +14,14 @@ class ExpressionTree:
     # constructs a default tree
     def __init__(self):
         self.root = None
+        self.validTree = True
 
     # construct a tree for a given expression, in post-traversal order
     # expression is a list for the expression
     def __init__(self, expressionList):
         self.root = self.builder(expressionList)
-
+        self.validTree = True
+        
     #build the appropriate expression tree.
     #expression is a list
     def builder(self, expressionList):

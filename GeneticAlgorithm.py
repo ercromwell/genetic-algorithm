@@ -23,7 +23,6 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars, stop_prob, in
     
     #calculate fitness of parents
     fitness = calculateFitness(parent_trees, training_set, num_vars)
-    print len(fitness)
 
     for gen in range(0, num_gen):
         print gen
@@ -35,15 +34,19 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars, stop_prob, in
         if best[0][0] == 0:
             print 'Exact solution is: '
             best[0][1].printTree()
-        
 
-        #otherwise, keep searching
-        max_fitness = [ 1/x for x in fitness]
+
         sum_fit = sum(fitness)
+        first_norm_fitness = [ x/sum_fit for x in fitness]
+        
+            
+        #otherwise, keep searching
+        max_fitness = [ 1/x for x in first_norm_fitness]
+        sum_fit = sum(max_fitness)
 
         #normalize fitness scores
         norm_fitness = [ x/sum_fit for x in max_fitness]
-
+        
         #set up probability sections
         prob_intervals = []
         prob_intervals.append(norm_fitness[0])
@@ -53,11 +56,23 @@ def run_symbolic_regression(filename, num_gen, pop_size, num_vars, stop_prob, in
         children_trees = []
         # make children trees
         for i in range(0, pop_size):
-        #select parents, ensure are not the same
-            int1 = random.randint(0, pop_size-1)
-            int2 = random.randint(0, pop_size-1)
-            while(int1 == int2):
-                int2 = random.randint(0, pop_size-1)
+            
+        #select parents, ensure are not the same, using fitness function as probability
+            num1 = random.random()
+            int1=0
+            #find correct parent1 based on random number
+            for i in range(0, pop_size):
+                if num1 <= prob_intervals[i]:
+                    int1 = i
+                    break
+            #find correct parent2 based on random number, ensure not same as parent1
+            int2 = int1
+            while( int1 == int2 ):
+                num2 = random.random()
+                for k in range(0, pop_size):
+                    if num2 <= prob_intervals[k]:
+                        int2 = k
+                        break
 
             parent_1 = parent_trees[int1]
             parent_2 = parent_trees[int2]
